@@ -66,5 +66,60 @@ def agregar_cliente():
     
     return redirect(url_for('listar_clientes'))
 
+# Función para crear un pedido en la base de datos
+def crear_pedido(cliente_id, detalles):
+    conn = get_db_connection()
+    if conn is None:
+        flash("Error de conexión a la base de datos", "error")
+        return
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO Pedidos (cliente_id, detalles) VALUES (?, ?)", 
+                       (cliente_id, detalles))
+        conn.commit()
+        flash("Pedido creado exitosamente", "success")
+    except pyodbc.Error as e:
+        conn.rollback()
+        flash(f"Error al crear pedido: {e}", "error")
+    finally:
+        cursor.close()
+        conn.close()
+
+# Ruta para listar pedidos y crear uno nuevo
+@app.route('/pedidos', methods=['GET', 'POST'])
+def listar_pedidos():
+    conn = get_db_connection()
+    if conn is None:
+        flash("Error de conexión a la base de datos", "error")
+        return render_template('pedidos.html', pedidos=[], clientes=[])
+
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        cliente_id = request.form['cliente_id']
+        detalles = request.form['detalles']
+        crear_pedido(cliente_id, detalles)  # Llamar a la función para crear el pedido
+        return redirect(url_for('listar_pedidos'))
+
+    cursor.execute("SELECT * FROM Pedidos")  # Cambia esto según tu tabla de pedidos
+    pedidos = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM Clientes")  # Obtener la lista de clientes
+    clientes = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+    
+    return render_template('pedidos.html', pedidos=pedidos, clientes=clientes)
+
+# Ruta para agregar un pedido (método POST)
+@app.route('/agregar_pedido', methods=['POST'])
+def agregar_pedido():
+    cliente_id = request.form['cliente_id']
+    detalles = request.form['detalles']
+    crear_pedido(cliente_id, detalles)  # Llamar a la función para crear el pedido
+    return redirect(url_for('listar_pedidos'))
+
 if __name__ == '__main__':
     app.run(debug=True)

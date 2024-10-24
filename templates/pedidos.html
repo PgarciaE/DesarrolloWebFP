@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedidos</title>
+    <!-- Incluir el archivo JavaScript -->
+    <script src="{{ url_for('static', filename='js/pedidos.js') }}"></script>
+</head>
+<body>
+    <h1>Lista de Pedidos</h1>
+    <form action="{{ url_for('agregar_pedido') }}" method="POST">
+        <label for="cliente_id">Cliente:</label>
+        <select id="cliente_id" name="cliente_id" required onchange="mostrarDatosCliente()">
+            {% for cliente in clientes %}
+                <option value="{{ cliente.cliente_id }}" 
+                        data-direccion="{{ cliente.direccion }}" 
+                        data-telefono="{{ cliente.telefono }}">
+                    {{ cliente.nombre }}
+                </option>
+            {% endfor %}
+        </select><br>
+
+        <label for="direccion">Dirección:</label>
+        <input type="text" id="direccion" name="direccion" readonly><br>
+
+        <label for="telefono">Teléfono:</label>
+        <input type="text" id="telefono" name="telefono" readonly><br>
+
+        <label for="detalles">Detalles del Pedido:</label>
+        <textarea id="detalles" name="detalles" required></textarea><br>
+
+        <input type="submit" value="Guardar Pedido">
+    </form>
+
+    <h2>Pedidos Existentes</h2>
+    <ul>
+        {% for pedido in pedidos %}
+            <li>Pedido #{{ pedido.pedido_id }}: {{ pedido.detalles }} (Cliente: {{ pedido.cliente_id }})</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
