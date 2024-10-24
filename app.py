@@ -3,20 +3,24 @@ import pyodbc
 
 app = Flask(__name__)
 
-# Conexión a la base de datos
-conn = pyodbc.connect(
-    'DRIVER={ODBC Driver 17 for SQL Server};'  
-    'SERVER=localhost;'                  
-    'DATABASE=desarrollowebFP;'              
-    'Trusted_Connection=yes;'
-)
-cursor = conn.cursor()
+# Función para obtener la conexión a la base de datos
+def get_db_connection():
+    return pyodbc.connect(
+        'DRIVER={ODBC Driver 17 for SQL Server};'  
+        'SERVER=localhost;'                  
+        'DATABASE=desarrollowebFP;'              
+        'Trusted_Connection=yes;'
+    )
 
 # Ruta para listar clientes
 @app.route('/clientes')
 def listar_clientes():
+    conn = get_db_connection()
+    cursor = conn.cursor()
     cursor.execute("SELECT * FROM Clientes")
     clientes = cursor.fetchall()
+    cursor.close()
+    conn.close()
     return render_template('clientes.html', clientes=clientes)
 
 # Ruta para crear un cliente (formulario)
@@ -27,6 +31,8 @@ def crear_cliente():
 # Ruta para agregar un cliente (método POST)
 @app.route('/agregar_cliente', methods=['POST'])
 def agregar_cliente():
+    conn = get_db_connection()
+    cursor = conn.cursor()
     nombre = request.form['nombre']
     direccion = request.form['direccion']
     telefono = request.form['telefono']
@@ -35,14 +41,10 @@ def agregar_cliente():
     cursor.execute("INSERT INTO Clientes (nombre, direccion, telefono, tipo_cliente) VALUES (?, ?, ?, ?)", 
                    (nombre, direccion, telefono, tipo_cliente))
     conn.commit()
+    cursor.close()
+    conn.close()
     
     return redirect(url_for('listar_clientes'))
-
-# Cerrar la conexión al finalizar
-@app.teardown_appcontext
-def close_connection(exception):
-    if 'conn' in locals():
-        conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
