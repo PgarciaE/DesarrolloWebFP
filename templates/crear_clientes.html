@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Cliente</title>
+</head>
+<body>
+    <h1>Crear Nuevo Cliente</h1>
+    <form action="/agregar_cliente" method="POST">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required>
+        
+        <label for="direccion">Dirección:</label>
+        <input type="text" id="direccion" name="direccion" required>
+
+        <label for="telefono">Teléfono:</label>
+        <input type="text" id="telefono" name="telefono" required>
+
+        <label for="tipo_cliente">Tipo:</label>
+        <select id="tipo_cliente" name="tipo_cliente">
+            <option value="minorista">Minorista</option>
+            <option value="mayorista">Mayorista</option>
+        </select>
+
+        <button type="submit">Agregar Cliente</button>
+    </form>
+    <a href="/clientes">Volver a la lista de clientes</a>
+</body>
+</html>
