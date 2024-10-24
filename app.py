@@ -121,5 +121,55 @@ def agregar_pedido():
     crear_pedido(cliente_id, detalles)  # Llamar a la función para crear el pedido
     return redirect(url_for('listar_pedidos'))
 
+
+# Ruta para listar productos
+@app.route('/productos', methods=['GET'])
+def listar_productos():
+    conn = get_db_connection()
+    if conn is None:
+        flash("Error de conexión a la base de datos", "error")
+        return render_template('productos.html', productos=[])
+    
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Productos")
+    productos = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('productos.html', productos=productos)
+
+# Ruta para crear un producto (formulario)
+@app.route('/crear_producto')
+def crear_producto():
+    return render_template('crear_producto.html')
+
+# Ruta para agregar un producto (método POST)
+@app.route('/agregar_producto', methods=['POST'])
+def agregar_producto():
+    conn = get_db_connection()
+    if conn is None:
+        flash("Error de conexión a la base de datos", "error")
+        return redirect(url_for('crear_producto'))
+    
+    try:
+        cursor = conn.cursor()
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        precio = request.form['precio']
+        stock = request.form['stock']
+        
+        cursor.execute("INSERT INTO Productos (nombre, descripcion, precio, stock) VALUES (?, ?, ?, ?)", 
+                       (nombre, descripcion, precio, stock))
+        conn.commit()
+        flash("Producto agregado exitosamente", "success")
+    except pyodbc.Error as e:
+        conn.rollback()
+        flash(f"Error al agregar producto: {e}", "error")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('listar_productos'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)

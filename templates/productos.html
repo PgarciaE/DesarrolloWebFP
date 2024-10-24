@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Productos</title>
+</head>
+<body>
+    <h1>Lista de Productos</h1>
+    <a href="{{ url_for('crear_producto') }}">Crear Nuevo Producto</a>
+    <ul>
+        {% for producto in productos %}
+            <li>Producto #{{ producto.producto_id }}: {{ producto.nombre }} - ${{ producto.precio }} (Stock: {{ producto.stock }})</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
